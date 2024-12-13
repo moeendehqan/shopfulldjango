@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="fa" dir="rtl">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ description }}">
+        <meta name="keywords" content="{{ keywords }}">
+        <meta name="author" content="{{ author }}">
+        <meta name="robots" content="{{ robots }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+        <link rel="icon" href="{{ favicon.url }}" type="image/x-icon">
+
+    </head>
+    <body>
+        {% include 'header.html' %}
+        {% block content %}
+        {% endblock content %}
+        {% include 'footer.html' %}
+    </body>
+</html>

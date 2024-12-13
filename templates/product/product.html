@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<meta name="description" content="{{ description }}">
+<meta name="keywords" content="{{ keywords }}">
+<meta name="author" content="{{ author }}">
+<meta name="robots" content="{{ robots }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- بخش تصاویر -->
+        <div class="space-y-4">
+            <!-- تصویر اصلی -->
+            <div class="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                <img src="{{ selected_variation.image.first.image.url|default:product.image.url }}" 
+                     class="object-cover w-full h-full" 
+                     alt="{{ product.name }}"
+                     id="mainImage">
+            </div>
+            
+            <!-- گالری تصاویر -->
+            <div class="grid grid-cols-4 gap-2">
+                {% for img in selected_variation.image.all %}
+                <div class="aspect-square rounded-md overflow-hidden">
+                    <img src="{{ img.image.url }}" 
+                         class="object-cover w-full h-full hover:opacity-75 transition-opacity cursor-pointer thumbnail-image" 
+                         alt="{{ img.alt }}">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- اطلاعات محصول -->
+        <div class="space-y-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ product.name }}</h1>
+                <p class="text-gray-500 mt-1">{{ product.category.name }}</p>
+            </div>
+            
+            <!-- توضیحات -->
+            <div class="prose prose-sm max-w-none">
+                {{ product.description|safe }}
+            </div>
+
+            <!-- بخش قیمت -->
+            <div id="price-section" class="border-t border-b py-4">
+                <div class="flex flex-col space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">قیمت:</span>
+                        <div class="text-left">
+                            <span id="original-price" class="{% if selected_variation.price_after_discount %}line-through text-gray-400{% else %}text-gray-900 font-bold text-xl{% endif %}">
+                                {{ selected_variation.price }} تومان
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {% if selected_variation.price_after_discount %}
+                    <div class="flex items-center justify-between">
+                        <span class="text-red-600">قیمت با تخفیف:</span>
+                        <div class="text-left">
+                            <span id="discount-price" class="text-red-600 font-bold text-xl">
+                                {{ selected_variation.price_after_discount }} تومان
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-green-600">میزان تخفیف:</span>
+                        <div class="text-left">
+                            <span id="discount-percent" class="text-green-600 font-bold">
+                                {% widthratio selected_variation.price_after_discount selected_variation.price 100 as percent %}
+                                {{ percent|floatformat:0 }}٪
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- انتخاب تنوع -->
+            <div class="space-y-3">
+                <h3 class="text-sm font-medium text-gray-900">انتخاب تنوع محصول</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    {% for variation in variations %}
+                    <button 
+                        class="variation-button p-4 border rounded-lg {% if variation.id == selected_variation.id %}ring-2 ring-blue-500{% endif %} hover:bg-gray-50 transition-all"
+                        data-variation-id="{{ variation.id }}"
+                        onclick="updateVariation({{ variation.id }})">
+                        <div class="flex items-center gap-3">
+                            {% if variation.color %}
+                            <div class="w-6 h-6 rounded-full border" 
+                                 style="background-color: {{ variation.color.code }}">
+                            </div>
+                            {% endif %}
+                            <div class="flex-1 text-right">
+                                <div class="font-medium">
+                                    {% if variation.color %}{{ variation.color.name }}{% endif %}
+                                    {% if variation.size %} - {{ variation.size.name }}{% endif %}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {% if variation.stock > 0 %}
+                                        موجود در انبار
+                                    {% else %}
+                                        ناموجود
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- دکمه خرید -->
+            <button id="addToCart"
+                    class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg
+                           hover:bg-blue-700 focus:outline-none focus:ring-2 
+                           focus:ring-blue-500 focus:ring-offset-2 transition-colors
+                           {% if not selected_variation.stock > 0 %}opacity-50 cursor-not-allowed{% endif %}"
+                    {% if not selected_variation.stock > 0 %}disabled{% endif %}
+                    data-variation-id="{{ selected_variation.id }}">
+                {% if selected_variation.stock > 0 %}
+                    افزودن به سبد خرید
+                {% else %}
+                    ناموجود
+                {% endif %}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- اسکریپت‌ها -->
+<script>
+const variations = {{ variations_json|safe }};
+
+function formatPrice(price) {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " تومان";
+}
+
+function calculateDiscount(original, discounted) {
+    return Math.round((1 - discounted / original) * 100);
+}
+
+function updateVariation(variationId) {
+    const variation = variations.find(v => v.id === variationId);
+    if (!variation) return;
+
+    // به‌روزرسانی تصاویر
+    const mainImage = document.getElementById('mainImage');
+    const galleryContainer = mainImage.closest('.space-y-4').querySelector('.grid');
+    
+    // به‌روزرسانی تصویر اصلی
+    if (variation.images && variation.images.length > 0) {
+        mainImage.src = variation.images[0].url;
+        mainImage.alt = variation.images[0].alt;
+    } else {
+        mainImage.src = variation.default_image;
+        mainImage.alt = '';
+    }
+    
+    // به‌روزرسانی گالری تصاویر
+    let galleryHTML = '';
+    if (variation.images && variation.images.length > 0) {
+        variation.images.forEach(img => {
+            galleryHTML += `
+                <div class="aspect-square rounded-md overflow-hidden">
+                    <img src="${img.url}" 
+                         class="object-cover w-full h-full hover:opacity-75 transition-opacity cursor-pointer thumbnail-image" 
+                         alt="${img.alt}"
+                         onclick="updateMainImage(this.src)">
+                </div>
+            `;
+        });
+    }
+    galleryContainer.innerHTML = galleryHTML;
+
+    // کد قبلی به‌روزرسانی قیمت‌ها
+    const originalPriceElement = document.getElementById('original-price');
+    const discountPriceElement = document.getElementById('discount-price');
+    const discountPercentElement = document.getElementById('discount-percent');
+
+    originalPriceElement.textContent = formatPrice(variation.price);
+    
+    if (variation.price_after_discount) {
+        originalPriceElement.classList.add('line-through', 'text-gray-400');
+        originalPriceElement.classList.remove('text-gray-900', 'font-bold', 'text-xl');
+        
+        if (discountPriceElement) {
+            discountPriceElement.textContent = formatPrice(variation.price_after_discount);
+        }
+        
+        if (discountPercentElement) {
+            const discountPercent = calculateDiscount(variation.price, variation.price_after_discount);
+            discountPercentElement.textContent = `${discountPercent}٪`;
+        }
+    } else {
+        originalPriceElement.classList.remove('line-through', 'text-gray-400');
+        originalPriceElement.classList.add('text-gray-900', 'font-bold', 'text-xl');
+        
+        if (discountPriceElement) {
+            discountPriceElement.closest('.flex').style.display = 'none';
+        }
+        
+        if (discountPercentElement) {
+            discountPercentElement.closest('.flex').style.display = 'none';
+        }
+    }
+
+    // به‌روزرسانی کلاس‌های دکمه‌ها
+    document.querySelectorAll('.variation-button').forEach(button => {
+        if (button.dataset.variationId === variationId.toString()) {
+            button.classList.add('ring-2', 'ring-blue-500');
+        } else {
+            button.classList.remove('ring-2', 'ring-blue-500');
+        }
+    });
+
+    // به‌روزرسانی دکمه افزودن به سبد خرید
+    const addToCartBtn = document.getElementById('addToCart');
+    addToCartBtn.dataset.variationId = variationId;
+    
+    if (variation.stock > 0) {
+        addToCartBtn.disabled = false;
+        addToCartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        addToCartBtn.textContent = 'افزودن به سبد خرید';
+    } else {
+        addToCartBtn.disabled = true;
+        addToCartBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        addToCartBtn.textContent = 'ناموجود';
+    }
+
+    // به‌روزرسانی URL بدون رفرش صفحه
+    const url = new URL(window.location);
+    url.searchParams.set('variation', variationId);
+    window.history.pushState({}, '', url);
+}
+
+// تابع جدید برای به‌روزرسانی تصویر اصلی با کلیک روی تصاویر کوچک
+function updateMainImage(src) {
+    const mainImage = document.getElementById('mainImage');
+    mainImage.src = src;
+}
+
+// اضافه کردن event listener برای تصاویر کوچک در زمان لود اولیه صفحه
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.thumbnail-image').forEach(img => {
+        img.addEventListener('click', function() {
+            updateMainImage(this.src);
+        });
+    });
+});
+
+// در بخش اسکریپت‌ها، قبل از پایان تگ script
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.getElementById('addToCart').addEventListener('click', function() {
+    if (this.disabled) return;
+    
+    const variationId = this.dataset.variationId;
+    const formData = new FormData();
+    formData.append('variation_id', variationId);
+    formData.append('quantity', 1);
+    
+    // اضافه کردن کلاس loading به دکمه
+    this.classList.add('opacity-50', 'cursor-wait');
+    const originalText = this.textContent;
+    this.textContent = 'در حال افزودن...';
+    
+    fetch('/cart/add/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // به‌روزرسانی تعداد آیتم‌های سبد خرید
+            const cartCount = document.getElementById('cart-items-count');
+            if (cartCount) {
+                cartCount.textContent = data.cart_items_count;
+            }
+            
+            // نمایش پیام موفقیت با جزئیات بیشتر
+            const message = `${data.product_name} (${data.variation_name}) با موفقیت به سبد خرید اضافه شد`;
+            // می‌توانید از یک کتابخانه toast استفاده کنید یا یک المان سفارشی برای نمایش پیام
+            alert(message);
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('خطا در ارتباط با سرور');
+    })
+    .finally(() => {
+        // برگرداندن دکمه به حالت اولیه
+        this.classList.remove('opacity-50', 'cursor-wait');
+        this.textContent = originalText;
+    });
+});
+</script>
+{% endblock %} 
