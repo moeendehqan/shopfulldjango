@@ -2,42 +2,70 @@
 {% load static %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header text-center">
-                    <h3>ثبت نام</h3>
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full mx-auto space-y-8">
+        <div class="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-extrabold text-gray-900">
+                    ثبت نام
+                </h2>
+            </div>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="rounded-md p-4 mb-4 {% if message.tags == 'error' %}bg-red-50 text-red-700{% else %}bg-green-50 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">
+                        ایمیل
+                    </label>
+                    <div class="mt-1">
+                        <input type="email" id="email" name="email" required
+                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
                 </div>
-                <div class="card-body">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="email" class="form-label">ایمیل</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password1" class="form-label">رمز عبور</label>
-                            <input type="password" class="form-control" id="password1" name="password1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password2" class="form-label">تکرار رمز عبور</label>
-                            <input type="password" class="form-control" id="password2" name="password2" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">ثبت نام</button>
-                    </form>
+
+                <div>
+                    <label for="password1" class="block text-sm font-medium text-gray-700">
+                        رمز عبور
+                    </label>
+                    <div class="mt-1">
+                        <input type="password" id="password1" name="password1" required
+                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
                 </div>
-                <div class="card-footer text-center">
-                    <p>قبلاً ثبت نام کرده‌اید؟ <a href="{% url 'accounts:login' %}">وارد شوید</a></p>
+
+                <div>
+                    <label for="password2" class="block text-sm font-medium text-gray-700">
+                        تکرار رمز عبور
+                    </label>
+                    <div class="mt-1">
+                        <input type="password" id="password2" name="password2" required
+                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
                 </div>
+
+                <div>
+                    <button type="submit"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        ثبت نام
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-6 text-center text-sm">
+                <p class="text-gray-600">
+                    قبلاً ثبت نام کرده‌اید؟ 
+                    <a href="{% url 'accounts:login' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        وارد شوید
+                    </a>
+                </p>
             </div>
         </div>
     </div>

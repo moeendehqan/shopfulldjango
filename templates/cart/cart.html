@@ -15,7 +15,14 @@
                     <div>
                         <h3 class="font-semibold">{{ item.product.name }}</h3>
                         <p class="text-gray-600">{{ item.variation }}</p>
-                        <p class="text-gray-500">تعداد: {{ item.quantity }}</p>
+                        <div class="flex items-center mt-2">
+                            <button class="quantity-btn minus bg-gray-200 px-3 py-1 rounded-l" data-item-id="{{ item.id }}">-</button>
+                            <input type="number" class="quantity-input w-16 text-center border-y border-gray-200" value="{{ item.quantity }}" min="1" max="{{ item.variation.stock }}" data-item-id="{{ item.id }}">
+                            <button class="quantity-btn plus bg-gray-200 px-3 py-1 rounded-r" data-item-id="{{ item.id }}">+</button>
+                            <button class="remove-item ml-4 text-red-500 hover:text-red-700" data-item-id="{{ item.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="text-left">
@@ -27,14 +34,20 @@
             <div class="mt-6 border-t pt-4">
                 <div class="flex justify-between items-center">
                     <span class="font-bold">جمع کل:</span>
-                    <span class="font-bold">{{ total_price|floatformat:0 }} تومان</span>
+                    <span class="font-bold total-price">{{ total_price|floatformat:0 }} تومان</span>
                 </div>
             </div>
             
             <div class="mt-6">
-                <a href="#" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600">
-                    ادامه فرآیند خرید
-                </a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'cart:checkout' %}" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600">
+                        ادامه فرآیند خرید
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}?next={% url 'cart:checkout' %}" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+                        ورود به سایت
+                    </a>
+                {% endif %}
             </div>
         </div>
     {% else %}
@@ -46,4 +59,106 @@
         </div>
     {% endif %}
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // تغییر تعداد محصول
+    const quantityInputs = document.querySelectorAll('.quantity-input');
+    const quantityBtns = document.querySelectorAll('.quantity-btn');
+    const removeButtons = document.querySelectorAll('.remove-item');
+
+    quantityBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+            const currentValue = parseInt(input.value);
+            
+            if (this.classList.contains('plus')) {
+                input.value = currentValue + 1;
+            } else {
+                if (currentValue > 1) {
+                    input.value = currentValue - 1;
+                }
+            }
+            updateCartItem(itemId, input.value);
+        });
+    });
+
+    quantityInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const itemId = this.dataset.itemId;
+            updateCartItem(itemId, this.value);
+        });
+    });
+
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            removeCartItem(itemId);
+        });
+    });
+
+    function updateCartItem(itemId, quantity) {
+        fetch('/cart/update/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                item_id: itemId,
+                quantity: quantity
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector('.total-price').textContent = data.total_price + ' تومان';
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+
+    function removeCartItem(itemId) {
+        if (confirm('آیا از حذف این محصول اطمینان دارید؟')) {
+            fetch('/cart/remove/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    item_id: itemId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %}
 {% endblock %} 

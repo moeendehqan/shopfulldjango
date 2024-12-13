@@ -5,7 +5,7 @@ class HomeView(TemplateView):
     template_name = 'home/home.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        setting = Setting.objects.get(pk=1)
+        setting = Setting.objects.first()
         context['description'] = setting.description
         context['keywords'] = setting.keywords
         context['author'] = setting.author

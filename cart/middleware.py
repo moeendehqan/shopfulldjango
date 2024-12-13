@@ -6,14 +6,21 @@ class CartMiddleware:
 
     def __call__(self, request):
         if request.user.is_authenticated:
-            cart, _ = Cart.objects.get_or_create(user=request.user)
+            cart, created = Cart.objects.get_or_create(user=request.user)
         else:
-            session_key = request.session.session_key
-            if not session_key:
-                request.session.create()
-                session_key = request.session.session_key
-            cart, _ = Cart.objects.get_or_create(session_id=session_key)
-        
+            if not request.session.get('cart_id'):
+                cart = Cart.objects.create(user=None)
+                request.session['cart_id'] = str(cart.id)
+            else:
+                try:
+                    cart = Cart.objects.get(id=request.session['cart_id'])
+                except Cart.DoesNotExist:
+                    cart = Cart.objects.create(user=None)
+                    request.session['cart_id'] = str(cart.id)
+                except ValueError:
+                    cart = Cart.objects.create(user=None)
+                    request.session['cart_id'] = str(cart.id)
+
         request.cart = cart
         response = self.get_response(request)
-        return response 
+        return response
