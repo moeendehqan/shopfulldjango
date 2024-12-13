@@ -1,1 +1,2 @@
 */migrations/*.py
+db.sqlite3

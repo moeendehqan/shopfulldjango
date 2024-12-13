@@ -2,56 +2,78 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6">تکمیل خرید</h1>
+    <h1 class="text-3xl font-bold mb-8 text-gray-800">تکمیل خرید</h1>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- فرم اطلاعات خریدار -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">اطلاعات خریدار</h2>
-            <form method="post" class="space-y-4">
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">اطلاعات خریدار</h2>
+            <form method="post" id="checkout-form" class="space-y-6">
                 {% csrf_token %}
-                <!-- اینجا فرم اطلاعات خریدار قرار می‌گیرد -->
-                <div>
-                    <label class="block text-gray-700">نام و نام خانوادگی</label>
-                    <input type="text" name="full_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                </div>
-                <div>
-                    <label class="block text-gray-700">آدرس</label>
-                    <textarea name="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="3" required></textarea>
-                </div>
-                <div>
-                    <label class="block text-gray-700">شماره تماس</label>
-                    <input type="tel" name="phone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">نام و نام خانوادگی</label>
+                        <input type="text" name="full_name" 
+                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition" 
+                               value="{{ request.user.get_full_name }}"
+                               required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">آدرس</label>
+                        <textarea name="address" 
+                                  class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition" 
+                                  rows="3" 
+                                  required>{{ request.user.profile.address }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">کد پستی</label>
+                        <input type="text" name="postal_code" 
+                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                               value="{{ request.user.profile.postal_code }}" 
+                               required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">شماره تماس</label>
+                        <input type="tel" name="phone" 
+                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                               value="{{ request.user.profile.phone }}" 
+                               required>
+                    </div>
                 </div>
             </form>
         </div>
         
         <!-- خلاصه سفارش -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">خلاصه سفارش</h2>
-            {% for item in cart_items %}
-            <div class="flex justify-between items-center border-b py-2">
-                <div>
-                    <h3 class="font-medium">{{ item.product.name }}</h3>
-                    <p class="text-sm text-gray-600">{{ item.variation }}</p>
-                    <p class="text-sm text-gray-500">تعداد: {{ item.quantity }}</p>
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">خلاصه سفارش</h2>
+            <div class="space-y-4">
+                {% for item in cart_items %}
+                <div class="flex justify-between items-center border-b border-gray-200 py-4">
+                    <div>
+                        <h3 class="font-medium text-gray-800">{{ item.product.name }}</h3>
+                        <p class="text-sm text-gray-600">{{ item.variation }}</p>
+                        <p class="text-sm text-gray-500">تعداد: {{ item.quantity }}</p>
+                    </div>
+                    <div class="text-left">
+                        <p class="font-semibold text-gray-800">{{ item.total_price|floatformat:0 }} تومان</p>
+                    </div>
                 </div>
-                <div class="text-left">
-                    <p class="font-semibold">{{ item.total_price|floatformat:0 }} تومان</p>
+                {% endfor %}
+                
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-bold text-gray-800">جمع کل:</span>
+                        <span class="text-xl font-bold text-gray-800">{{ total_price|floatformat:0 }} تومان</span>
+                    </div>
                 </div>
+                
+                <button type="submit" form="checkout-form" 
+                        class="mt-8 w-full bg-green-500 text-white px-6 py-4 rounded-lg font-medium
+                               hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
+                               transition-colors duration-200">
+                    پرداخت و ثبت سفارش
+                </button>
             </div>
-            {% endfor %}
-            
-            <div class="mt-4 pt-4 border-t">
-                <div class="flex justify-between items-center">
-                    <span class="font-bold">جمع کل:</span>
-                    <span class="font-bold">{{ total_price|floatformat:0 }} تومان</span>
-                </div>
-            </div>
-            
-            <button type="submit" class="mt-6 w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600">
-                پرداخت و ثبت سفارش
-            </button>
         </div>
     </div>
 </div>

@@ -1,4 +1,57 @@
+{% load static %}
+<footer class="bg-gray-800 text-white py-8">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- درباره ما -->
+            <div>
+                <h4 class="text-xl font-bold mb-4">درباره ما</h4>
+                <p class="text-gray-400">{{ setting.aboutus }}</p>
+            </div>
 
-<footer>
-    <p>Footer</p>
+            <!-- لینک‌های مفید -->
+            <div>
+                <h4 class="text-xl font-bold mb-4">لینک‌های مفید</h4>
+                <ul>
+                    <li><a href="{% url 'home' %}" class="hover:text-blue-400">صفحه اصلی</a></li>
+                    <li><a href="" class="hover:text-blue-400">محصولات</a></li>
+                    <li><a href="" class="hover:text-blue-400">تماس با ما</a></li>
+                </ul>
+            </div>
+
+            <!-- اطلاعات تماس -->
+            <div>
+                <h4 class="text-xl font-bold mb-4">اطلاعات تماس</h4>
+                <p><i class="fas fa-map-marker-alt"></i> {{ setting.address }}</p>
+                <p><i class="fas fa-phone"></i> {{ setting.phone }}</p>
+                <p><i class="fas fa-envelope"></i> {{ setting.email }}</p>
+            </div>
+
+            <!-- شبکه‌های اجتماعی -->
+            <div>
+                <h4 class="text-xl font-bold mb-4">ما را دنبال کنید</h4>
+                <div class="flex space-x-4">
+                    {% if setting.facebook %}
+                    <a href="{{ setting.facebook }}" class="text-blue-500 hover:text-blue-400">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    {% endif %}
+                    {% if setting.instagram %}
+                    <a href="{{ setting.instagram }}" class="text-pink-500 hover:text-pink-400">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    {% endif %}
+                    {% if setting.twitter %}
+                    <a href="{{ setting.twitter }}" class="text-blue-400 hover:text-blue-300">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- کپی رایت -->
+        <div class="text-center mt-8 border-t border-gray-700 pt-4">
+            <p>&copy; {{ setting.shop_name }} - تمامی حقوق محفوظ است</p>
+        </div>
+    </div>
 </footer>
