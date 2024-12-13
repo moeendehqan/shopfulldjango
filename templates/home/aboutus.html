@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row items-center justify-between mb-12">
+        <div class="md:w-1/2 mb-6 md:mb-0 md:pl-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">درباره ما</h1>
+            <p class="text-gray-600 leading-relaxed">
+                {{ setting.aboutus|default:'توضیحات درباره شرکت ما' }}
+            </p>
+        </div>
+        <div class="md:w-1/2 flex justify-center">
+            <img 
+                src="{{ setting.logo.url }}" 
+                alt="{{ setting.shop_name }}" 
+                class="max-w-full h-auto rounded-lg shadow-lg"
+            >
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 mt-12">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">تماس با ما</h3>
+            <p class="text-gray-600">
+                <strong class="block mb-2">آدرس:</strong> 
+                <span>{{ setting.address|default:'-' }}</span>
+                <strong class="block mt-2 mb-2">تلفن:</strong> 
+                <span>{{ setting.phone|default:'-' }}</span>
+                <strong class="block mt-2 mb-2">ایمیل:</strong> 
+                <span>{{ setting.email|default:'-' }}</span>
+            </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">شبکه‌های اجتماعی</h3>
+            <div class="flex space-x-4 reverse-x">
+                {% if setting.facebook %}
+                    <a href="{{ setting.facebook }}" target="_blank" 
+                       class="text-blue-600 hover:text-blue-800 transition duration-300">
+                        فیسبوک
+                    </a>
+                {% endif %}
+                {% if setting.instagram %}
+                    <a href="{{ setting.instagram }}" target="_blank" 
+                       class="text-pink-600 hover:text-pink-800 transition duration-300">
+                        اینستاگرام
+                    </a>
+                {% endif %}
+                {% if setting.twitter %}
+                    <a href="{{ setting.twitter }}" target="_blank" 
+                       class="text-blue-400 hover:text-blue-600 transition duration-300">
+                        توییتر
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">اطلاعات تماس</h3>
+            <p class="text-gray-600 leading-relaxed">
+                ما همیشه آماده پاسخگویی به سوالات و درخواست‌های شما هستیم. 
+                با اعتماد با ما تماس بگیرید.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

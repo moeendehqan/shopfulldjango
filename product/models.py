@@ -1,6 +1,7 @@
 from django.db import models
 from category.models import Category
 from accounts.models import User
+from django.utils import timezone
 
 
 
@@ -33,6 +34,8 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     category = models.ForeignKey(Category,on_delete=models.CASCADE)
+    discount_percentage = models.FloatField(default=0)
+    created_at = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
         if not self.slug:

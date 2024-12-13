@@ -16,5 +16,49 @@
         </div>
     {% endif %}
     
-    <!-- باقی محتوای صفحه اصلی -->
+    <div class="container mx-auto px-4 py-8">
+        <h2 class="text-2xl font-bold mb-4">محصولات با بیشترین تخفیف</h2>
+        <div class="grid grid-cols-5 gap-4">
+            {% for product in discounted_products %}
+                <div class="product-card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    <h3>{{ product.name }}</h3>
+                    <p>تخفیف: {{ product.discount_percentage }}%</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <h2 class="text-2xl font-bold mb-4 mt-8">محصولات با بیشترین امتیاز</h2>
+        <div class="grid grid-cols-5 gap-4">
+            {% for product in top_rated_products %}
+                <div class="product-card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    <h3>{{ product.name }}</h3>
+                    <p>امتیاز: {{ product.avg_rating|floatformat:1 }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <h2 class="text-2xl font-bold mb-4 mt-8">محصولات پرفروش</h2>
+        <div class="grid grid-cols-5 gap-4">
+            {% for product in best_selling_products %}
+                <div class="product-card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    <h3>{{ product.name }}</h3>
+                    <p>تعداد فروش: {{ product.total_sales }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <h2 class="text-2xl font-bold mb-4 mt-8">محصولات جدید</h2>
+        <div class="grid grid-cols-5 gap-4">
+            {% for product in newest_products %}
+                <div class="product-card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    <h3>{{ product.name }}</h3>
+                    <p>تاریخ ایجاد: {{ product.created_at|date:"d F Y" }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
