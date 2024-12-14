@@ -63,7 +63,7 @@ class Variation(models.Model):
     stock = models.IntegerField(default=0)
     color = models.ForeignKey(Color,on_delete=models.CASCADE,null=True,blank=True)
     size = models.ForeignKey(Size,on_delete=models.CASCADE,null=True,blank=True)
-    image = models.ManyToManyField(Image ,null=True,blank=True)
+    image = models.ManyToManyField(Image)
     published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
