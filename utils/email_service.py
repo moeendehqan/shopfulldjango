@@ -6,7 +6,7 @@ import ssl
 from django.core.mail import EmailMessage
 from email.mime.text import MIMEText
 from email.header import Header
-
+from django.conf import settings
 class EmailService:
     @staticmethod
     def send_email(
@@ -18,20 +18,18 @@ class EmailService:
         attachments: list = None
     ):
         try:
-            # دریافت تنظیمات از مدل Setting
-            setting = Setting.objects.first()
             
             # تعیین پورت و نوع اتصال
-            smtp_host = setting.smtpserver
-            smtp_username = setting.smtpusername
-            smtp_password = setting.smtppassword
+            smtp_host = settings.EMAIL_HOST
+            smtp_username = settings.EMAIL_HOST_USER
+            smtp_password = settings.EMAIL_HOST_PASSWORD
             
             # اولویت با SMTPS
-            if setting.smtpsport:
-                smtp_port = int(setting.smtpsport)
+            if settings.EMAIL_PORT_SMTPS:
+                smtp_port = int(settings.EMAIL_PORT_SMTPS)
                 use_ssl = True
             else:
-                smtp_port = int(setting.smtpport or 587)
+                smtp_port = int(settings.EMAIL_PORT_SMTP or 587)
                 use_ssl = False
             
             # ایجاد کانتکست SSL
@@ -53,7 +51,7 @@ class EmailService:
                 # ساخت ایمیل با کدگذاری UTF-8
                 msg = MIMEText(html_message or message, 'html', 'utf-8')
                 msg['Subject'] = Header(subject, 'utf-8')
-                msg['From'] = from_email or setting.smtpemail
+                msg['From'] = from_email or settings.DEFAULT_FROM_EMAIL
                 msg['To'] = ', '.join(recipient_list)
                 
                 # ارسال ایمیل
@@ -70,12 +68,19 @@ class EmailService:
             for recipient in recipient_list:
                 EmailLog.objects.create(
                     subject=subject,
-                    sender=from_email or setting.smtpemail,
+                    sender=from_email or settings.DEFAULT_FROM_EMAIL,
                     recipient=recipient,
                     message=message,
                     html_message=html_message,
                     status='success'
                 )
+            
+            # چاپ اطلاعات دقیق SMTP برای دیباگ
+            print("SMTP Debug Info:")
+            print(f"Host: {smtp_host}")
+            print(f"Port: {smtp_port}")
+            print(f"Username: {smtp_username}")
+            print(f"SSL/TLS: {use_ssl}")
             
             return {
                 'success': True,
@@ -88,7 +93,7 @@ class EmailService:
             for recipient in recipient_list or []:
                 EmailLog.objects.create(
                     subject=subject,
-                    sender=from_email or setting.smtpemail,
+                    sender=from_email or settings.DEFAULT_FROM_EMAIL,
                     recipient=recipient,
                     message=message,
                     html_message=html_message,
@@ -98,10 +103,10 @@ class EmailService:
             
             # چاپ جزئیات خطا برای دیباگ
             print(f"SMTP Error Details:")
-            print(f"Host: {setting.smtpserver}")
-            print(f"Port SMTPS: {setting.smtpsport}")
-            print(f"Port SMTP: {setting.smtpport}")
-            print(f"Username: {setting.smtpusername}")
+            print(f"Host: {settings.EMAIL_HOST}")
+            print(f"Port SMTPS: {settings.EMAIL_PORT_SMTPS}")
+            print(f"Port SMTP: {settings.EMAIL_PORT_SMTP}")
+            print(f"Username: {settings.EMAIL_HOST_USER}")
             print(f"Full Error: {str(e)}")
             
             return {

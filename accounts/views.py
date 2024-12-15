@@ -4,11 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.generic import View
 from django.urls import reverse_lazy, reverse
-from django.contrib.auth.views import (
-    PasswordResetView, 
-    PasswordResetConfirmView,
-    PasswordChangeView
-)
+from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView)
 from .models import User
 from home.models import Setting
 import uuid
@@ -17,10 +13,11 @@ from django.core.exceptions import ValidationError
 from utils.email_service import EmailService
 from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
-from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.conf import settings
+from django.http import HttpResponse
 
 class LoginView(View):
     template_name = 'accounts/login.html'
@@ -120,11 +117,9 @@ class RegisterView(View):
             is_email_verified=False,
             email_verification_token=verification_token
         )
+
         
-        # دریافت تنظیمات از مدل Setting
-        setting = Setting.objects.first()
-        
-        # ایجاد لینک تایید با استفاده از reverse
+        # ایجاد لینک تایید برای استفاده از reverse
         verification_link = request.build_absolute_uri(
             reverse('accounts:verify_email', kwargs={'token': verification_token})
         )
@@ -175,43 +170,46 @@ class VerifyEmailView(View):
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'accounts/password_reset.html'
     email_template_name = 'accounts/password_reset_email.html'
-    success_url = reverse_lazy('password_reset_done')
+    success_url = reverse_lazy('accounts:password_reset_done')
 
     def send_mail(
         self, 
-        subject_template_name, 
         email_template_name,
         context, 
-        from_email, 
         to_email, 
-        html_email_template_name=None
+        *args,
+        **kwargs
     ):
-        """
-        سفارشی‌سازی ارسال ایمیل بازیابی رمز عبور
-        """
         try:
-            # تولید محتوای HTML
+            # تولید HTML message
             html_message = render_to_string(email_template_name, context)
             
-            # تولید متن ساده
-            plain_message = strip_tags(html_message)
+            # چاپ اطلاعات برای دیباگ
+            print(f"Sending password reset email to: {to_email}")
+            print(f"Subject: {context.get('subject', 'Password Reset')}")
+
+            # استفاده از تنظیمات پیش‌فرض Django برای ارسال ایمیل
+            from django.core.mail import EmailMultiAlternatives
             
-            # ارسال ایمیل با سرویس سفارشی
-            email_result = EmailService.send_email(
-                subject=context['subject'],
-                message=plain_message,
-                html_message=html_message,
-                recipient_list=[to_email]
+            email = EmailMultiAlternatives(
+                subject=context.get('subject', 'Password Reset'),
+                body=strip_tags(html_message),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[to_email],
+                reply_to=[settings.DEFAULT_FROM_EMAIL]
             )
+            email.attach_alternative(html_message, "text/html")
             
-            if not email_result['success']:
-                print(f"Password Reset Email Error: {email_result.get('message', 'Unknown error')}")
-                return False
+            # ارسال ایمیل با تنظیمات اضافی
+            email.send(fail_silently=False)
             
+            print("Password reset email sent successfully")
             return True
         
         except Exception as e:
-            print(f"Password Reset Email Exception: {str(e)}")
+            print(f"Password Reset Email Error: {str(e)}")
+            import traceback
+            traceback.print_exc()  # چاپ جزئیات کامل خطا
             return False
 
     def get_context_data(self, **kwargs):
@@ -233,3 +231,61 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'با موفقیت خارج شدید.')
     return redirect('home')
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'accounts/password_reset_done.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        setting = Setting.objects.first()
+        context.update({
+            'description': setting.description,
+            'keywords': setting.keywords,
+            'author': setting.author,
+            'robots': 'index, follow',
+            'title': setting.title,
+            'logo': setting.logo,
+            'favicon': setting.favicon
+        })
+        return context
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'accounts/password_reset_confirm.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # افزودن تنظیمات سایت
+        setting = Setting.objects.first()
+        context.update({
+            'description': setting.description,
+            'keywords': setting.keywords,
+            'author': setting.author,
+            'robots': 'index, follow',
+            'title': f'{setting.title} - بازنشانی رمز عبور',
+            'logo': setting.logo,
+            'favicon': setting.favicon
+        })
+        
+        return context
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'accounts/password_reset_complete.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # افزودن تنظیمات سایت
+        setting = Setting.objects.first()
+        context.update({
+            'description': setting.description,
+            'keywords': setting.keywords,
+            'author': setting.author,
+            'robots': 'index, follow',
+            'title': f'{setting.title} - بازنشانی رمز عبور تکمیل شد',
+            'logo': setting.logo,
+            'favicon': setting.favicon
+        })
+        
+        return context
+

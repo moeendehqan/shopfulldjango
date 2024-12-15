@@ -138,3 +138,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 AUTH_USER_MODEL = 'accounts.User'
 CART_SESSION_ID = 'cart'
 
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.c1.liara.email')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT_SMTPS', 465))
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'determined_blackburn_m0gpqt')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'dd4c5284-90db-4ada-90c4-e8c2768efe35')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'info@ibarge.work')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
