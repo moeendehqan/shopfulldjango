@@ -63,7 +63,7 @@
                     </div>
                     
                     <div class="flex justify-between items-center mt-4">
-                        <div>
+                        <div class="flex-grow">
                             {% if item.price_after_discount and item.price_after_discount < item.price %}
                                 <p class="text-red-600 font-semibold line-through text-sm">
                                     {{ item.price|intcomma }} تومان
@@ -80,7 +80,7 @@
                         
                         {% if item.product.slug %}
                             <a href="{% url 'product:product_detail' item.product.slug %}" 
-                               class="bg-primary text-white px-3 py-1 rounded-md hover:bg-primary-dark transition-colors">
+                               class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm mr-2">
                                 مشاهده
                             </a>
                         {% endif %}
