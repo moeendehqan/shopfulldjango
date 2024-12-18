@@ -3,6 +3,8 @@ from .models import Setting, Slider
 import random
 from product.models import Product, Variation
 from django.db.models import Avg, Count, F, ExpressionWrapper, DecimalField, Subquery, OuterRef
+from django_jalali.db import models as jmodels
+import jdatetime
 
 class HomeView(TemplateView):
     template_name = 'home/home.html'
@@ -121,6 +123,12 @@ class HomeView(TemplateView):
             for product in products:
                 print(f"ID: {product.product.id}, Name: {product.product.name}, Slug: {product.product.slug}")
         
+        # تبدیل تاریخ در context
+        for key in ['newest_products', 'top_rated_products', 'best_selling_products']:
+            if key in context:
+                for item in context[key]:
+                    item.jalali_created_at = convert_to_jalali(item.created_at)
+        
         return context
 
 class AboutUsView(TemplateView):
@@ -140,6 +148,13 @@ class AboutUsView(TemplateView):
         context['setting'] = setting
         
         return context
+
+def convert_to_jalali(date):
+    try:
+        jalali_date = jdatetime.date.fromgregorian(date=date)
+        return jalali_date.strftime("%Y/%m/%d")
+    except:
+        return str(date)
 
 
 
