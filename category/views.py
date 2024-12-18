@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.views.generic import TemplateView, ListView
 from .models import Category
 from home.models import Setting
-from product.models import Product
+from product.models import Product, Variation
+from django.db import models
 
 # Create your views here.
 class CategoryView(TemplateView):
@@ -15,7 +16,11 @@ class CategoryView(TemplateView):
         products = Product.objects.filter(
             category=category,
             published=True
-        ).prefetch_related('variation_set')
+        ).prefetch_related(
+            models.Prefetch('variation_set', 
+                queryset=Variation.objects.order_by('-is_default')
+            )
+        )
         
         context['category'] = category
         context['products'] = products

@@ -1,9 +1,7 @@
-from home.models import Setting
 from .models import EmailLog
 import os
 import smtplib
 import ssl
-from django.core.mail import EmailMessage
 from email.mime.text import MIMEText
 from email.header import Header
 from django.conf import settings
@@ -24,13 +22,10 @@ class EmailService:
             smtp_username = settings.EMAIL_HOST_USER
             smtp_password = settings.EMAIL_HOST_PASSWORD
             
-            # اولویت با SMTPS
-            if settings.EMAIL_PORT_SMTPS:
-                smtp_port = int(settings.EMAIL_PORT_SMTPS)
-                use_ssl = True
-            else:
-                smtp_port = int(settings.EMAIL_PORT_SMTP or 587)
-                use_ssl = False
+
+            smtp_port = int(settings.EMAIL_PORT)
+            use_ssl = True
+
             
             # ایجاد کانتکست SSL
             context = ssl.create_default_context()

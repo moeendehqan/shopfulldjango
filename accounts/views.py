@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.views.generic import View
+from django.views.generic import View, UpdateView
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView)
 from .models import User
@@ -18,6 +18,8 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.http import HttpResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import ProfileUpdateForm
 
 class LoginView(View):
     template_name = 'accounts/login.html'
@@ -251,6 +253,7 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'accounts/password_reset_confirm.html'
+    success_url = reverse_lazy('accounts:password_reset_complete')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -288,4 +291,36 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
         })
         
         return context
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    template_name = 'accounts/profile.html'
+    form_class = ProfileUpdateForm
+    success_url = reverse_lazy('accounts:profile')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.request.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        setting = Setting.objects.first()
+        context.update({
+            'description': setting.description,
+            'keywords': setting.keywords,
+            'author': setting.author,
+            'robots': 'index, follow',
+            'title': f'{setting.title} - پروفایل کاربری',
+            'logo': setting.logo,
+            'favicon': setting.favicon
+        })
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, 'پروفایل با موفقیت به‌روزرسانی شد.')
+        return super().form_valid(form)
 

@@ -1,3 +1,4 @@
+from typing import Iterable
 from django.db import models
 from category.models import Category
 from accounts.models import User
@@ -34,7 +35,6 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     category = models.ForeignKey(Category,on_delete=models.CASCADE)
-    discount_percentage = models.FloatField(default=0)
     created_at = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
@@ -67,9 +67,18 @@ class Variation(models.Model):
     published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_default = models.BooleanField(default=False)
+
+    def save(self) -> None:
+        if self.is_default:
+            Variation.objects.filter(product=self.product).update(is_default=False)
+        if not Variation.objects.filter(product=self.product, is_default=True).exists():
+            self.is_default = True
+        return super().save()
+
     def __str__(self):
-        size = self.size.name if self.size else ''
-        color = self.color.name if self.color else ''
+        size = self.size.name if self.size else 'اندازه پیش فرض'
+        color = self.color.name if self.color else 'رنگ پیش فرض'
         return f'{self.product.name} - {color} - {size} - {self.product.slug}'
 
 

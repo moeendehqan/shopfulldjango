@@ -11,6 +11,11 @@ class User(AbstractUser):
         verbose_name='email address',
         max_length=255,
     )
+    first_name = models.CharField(_('نام'), max_length=50, blank=True, null=True)
+    last_name = models.CharField(_('نام خانوادگی'), max_length=50, blank=True, null=True)
+    birth_date = models.DateField(_('تاریخ تولد'), null=True, blank=True)
+    address = models.TextField(_('آدرس'), blank=True, null=True)
+    postal_code = models.CharField(max_length=10, null=True, blank=True)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                پروفایل کاربری
+            </h2>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="mt-8 space-y-6 bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+            {% csrf_token %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{% if message.tags %}alert alert-{{ message.tags }}{% endif %} text-center py-2 rounded-md 
+                        {% if message.tags == 'success' %}bg-green-100 text-green-800{% endif %}
+                        {% if message.tags == 'error' %}bg-red-100 text-red-800{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="space-y-4">
+                <div>
+                    <label for="id_first_name" class="block text-sm font-medium text-gray-700">نام</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div class="text-red-500 text-sm mt-1">
+                            {% for error in form.first_name.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_last_name" class="block text-sm font-medium text-gray-700">نام خانوادگی</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <div class="text-red-500 text-sm mt-1">
+                            {% for error in form.last_name.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_phone_number" class="block text-sm font-medium text-gray-700">شماره تلفن همراه</label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                        <div class="text-red-500 text-sm mt-1">
+                            {% for error in form.phone_number.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_postal_code" class="block text-sm font-medium text-gray-700">کد پستی</label>
+                    {{ form.postal_code }}
+                    {% if form.postal_code.errors %}
+                        <div class="text-red-500 text-sm mt-1">
+                            {% for error in form.postal_code.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_address" class="block text-sm font-medium text-gray-700">آدرس</label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                        <div class="text-red-500 text-sm mt-1">
+                            {% for error in form.address.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" 
+                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
+                    به‌روزرسانی پروفایل
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

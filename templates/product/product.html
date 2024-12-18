@@ -80,6 +80,7 @@
             </div>
 
             <!-- انتخاب تنوع -->
+            {% if variations|length > 1 %}
             <div class="space-y-3">
                 <h3 class="text-sm font-medium text-gray-900">انتخاب تنوع محصول</h3>
                 <div class="grid grid-cols-2 gap-2">
@@ -96,12 +97,14 @@
                             {% endif %}
                             <div class="flex-1 text-right">
                                 <div class="font-medium">
-                                    {% if variation.color %}{{ variation.color.name }}{% endif %}
-                                    {% if variation.size %} - {{ variation.size.name }}{% endif %}
+
+                                    {% if variation.color and variation.size %}{{ variation.color.name }} - {{ variation.size.name }}{% endif %}
+                                    {% if variation.color and  not variation.size %}{{ variation.color.name }}{% endif %}
+                                    {% if variation.size and not variation.color %}{{ variation.size.name }}{% endif %}
                                 </div>
                                 <div class="text-sm text-gray-500">
                                     {% if variation.stock > 0 %}
-                                        موجود در انبار
+                                        {{variation.stock}} موجود در انبار
                                     {% else %}
                                         ناموجود
                                     {% endif %}
@@ -112,7 +115,8 @@
                     {% endfor %}
                 </div>
             </div>
-
+            {% endif %}
+            
             <!-- دکمه خرید -->
             <button id="addToCart"
                     class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg
