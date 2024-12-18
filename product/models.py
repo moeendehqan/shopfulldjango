@@ -36,6 +36,7 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     category = models.ForeignKey(Category,on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
+    count_sell = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if not self.slug:

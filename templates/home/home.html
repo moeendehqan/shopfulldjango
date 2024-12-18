@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load humanize %}
 {% block content %}
     {% if random_slider %}
         <div class="relative w-full h-[80vh] overflow-hidden">
@@ -17,48 +17,20 @@
     {% endif %}
     
     <div class="container mx-auto px-4 py-8">
-        <h2 class="text-2xl font-bold mb-4">محصولات با بیشترین تخفیف</h2>
-        <div class="grid grid-cols-5 gap-4">
-            {% for product in discounted_products %}
-                <div class="product-card">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                    <h3>{{ product.name }}</h3>
-                    <p>تخفیف: {{ product.discount_percentage }}%</p>
-                </div>
-            {% endfor %}
-        </div>
+        {% with products=discounted_products title='محصولات با بیشترین تخفیف' detail_field='discount_percentage' %}
+            {% include 'includes/product_section.html' %}
+        {% endwith %}
 
-        <h2 class="text-2xl font-bold mb-4 mt-8">محصولات با بیشترین امتیاز</h2>
-        <div class="grid grid-cols-5 gap-4">
-            {% for product in top_rated_products %}
-                <div class="product-card">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                    <h3>{{ product.name }}</h3>
-                    <p>امتیاز: {{ product.avg_rating|floatformat:1 }}</p>
-                </div>
-            {% endfor %}
-        </div>
+        {% with products=top_rated_products title='محصولات با بیشترین امتیاز' detail_field='avg_rating' %}
+            {% include 'includes/product_section.html' %}
+        {% endwith %}
 
-        <h2 class="text-2xl font-bold mb-4 mt-8">محصولات پرفروش</h2>
-        <div class="grid grid-cols-5 gap-4">
-            {% for product in best_selling_products %}
-                <div class="product-card">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                    <h3>{{ product.name }}</h3>
-                    <p>تعداد فروش: {{ product.total_sales }}</p>
-                </div>
-            {% endfor %}
-        </div>
+        {% with products=best_selling_products title='محصولات پرفروش' detail_field='count_sell' %}
+            {% include 'includes/product_section.html' %}
+        {% endwith %}
 
-        <h2 class="text-2xl font-bold mb-4 mt-8">محصولات جدید</h2>
-        <div class="grid grid-cols-5 gap-4">
-            {% for product in newest_products %}
-                <div class="product-card">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                    <h3>{{ product.name }}</h3>
-                    <p>تاریخ ایجاد: {{ product.created_at|date:"d F Y" }}</p>
-                </div>
-            {% endfor %}
-        </div>
+        {% with products=newest_products title='محصولات جدید' detail_field='created_at' %}
+            {% include 'includes/product_section.html' %}
+        {% endwith %}
     </div>
 {% endblock %}
