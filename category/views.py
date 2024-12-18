@@ -21,6 +21,8 @@ class CategoryView(TemplateView):
                 queryset=Variation.objects.order_by('-is_default')
             )
         )
+        categories = Category.objects.filter(parent__isnull=True, status=True)
+        context['categories'] = categories
         
         context['category'] = category
         context['products'] = products
@@ -41,6 +43,8 @@ class AllCategoriesView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         setting = Setting.objects.get(pk=1)
+        categories = Category.objects.filter(parent__isnull=True, status=True)
+        context['categories'] = categories
         context['description'] = 'تمام دسته‌بندی‌های فروشگاه'
         context['keywords'] = 'دسته‌بندی‌ها، فروشگاه'
         context['author'] = setting.author
@@ -49,4 +53,6 @@ class AllCategoriesView(ListView):
         context['logo'] = setting.logo
         context['favicon'] = setting.favicon
         return context
+
+
 

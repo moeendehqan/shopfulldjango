@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">دسته‌بندی‌ها</h1>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {% for category in categories %}
+        <div class="bg-white shadow-md rounded-lg p-4">
+            {% if category.image %}
+            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-48 object-cover rounded-t-lg mb-4">
+            {% endif %}
+            <h2 class="text-lg font-semibold mb-2">{{ category.name }}</h2>
+            {% if category.description %}
+            <p class="text-gray-600 mb-4">{{ category.description|truncatewords:20 }}</p>
+            {% endif %}
+            <a href="/category/{{ category.slug }}" class="text-blue-600 hover:underline inline-block">
+                مشاهده محصولات
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

@@ -3,6 +3,8 @@ from .models import Product
 from home.models import Setting
 from django.core import serializers
 import json
+from django.db.models import Q
+from category.models import Category
 
 class ProductDetailView(DetailView):
     model = Product
@@ -57,11 +59,43 @@ class ProductDetailView(DetailView):
             })
         
         context['variations_json'] = json.dumps(variations_data)
+        
+        # اضافه کردن دسته‌بندی‌ها به کانتکست
+        categories = Category.objects.filter(parent__isnull=True, status=True)
+        context['categories'] = categories
+        
         return context
 
 class ProductListView(ListView):
     model = Product
     template_name = 'product/product_list.html'
     context_object_name = 'products'
+
+class SearchResultsView(ListView):
+    model = Product
+    template_name = 'product/search_results.html'
+    context_object_name = 'products'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q', '')
+        return Product.objects.filter(
+            Q(name__icontains=query) | 
+            Q(description__icontains=query) | 
+            Q(keywords__icontains=query) |
+            Q(category__name__icontains=query)
+        ).filter(published=True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        
+        # اضافه کردن اطلاعات تنظیمات
+        setting = Setting.objects.get(pk=1)
+        context['logo'] = setting.logo
+        context['setting'] = setting
+        categories = Category.objects.filter(parent__isnull=True, status=True)
+        context['categories'] = categories
+        
+        return context
 
 

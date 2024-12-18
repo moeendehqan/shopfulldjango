@@ -7,6 +7,7 @@ from product.models import Product, Variation
 from home.models import Setting
 import json
 from django.views.decorators.csrf import csrf_exempt
+from category.models import Category
 
 def get_or_create_cart(request):
     if request.user.is_authenticated:
@@ -75,7 +76,8 @@ def view_cart(request):
     cart = get_or_create_cart(request)
     cart_items = cart.items.select_related('product', 'variation').all()
     setting = Setting.objects.get(pk=1)
-
+    
+    categories = Category.objects.filter(parent__isnull=True, status=True)
     
     total_price = sum(item.total_price for item in cart_items)
     
@@ -83,6 +85,7 @@ def view_cart(request):
         'cart': cart,
         'cart_items': cart_items,
         'total_price': total_price,
+        'categories': categories,
         'title': 'سبد خرید',
         'description': 'مشاهده سبد خرید و محصولات',
         'author': setting.author,
@@ -161,6 +164,17 @@ def checkout(request):
     
     total_price = sum(item.total_price for item in cart_items)
     
+    if request.method == 'POST':
+        user = request.user
+        user.first_name = request.POST.get('full_name').split()[0]
+        user.last_name = ' '.join(request.POST.get('full_name').split()[1:])
+        user.address = request.POST.get('address')
+        user.postal_code = request.POST.get('postal_code')
+        user.phone_number = request.POST.get('phone')
+        user.save()
+        
+        return redirect('order:complete')
+    categories = Category.objects.filter(parent__isnull=True, status=True)
     context = {
         'cart_items': cart_items,
         'total_price': total_price,
@@ -171,6 +185,7 @@ def checkout(request):
         'logo': setting.logo,
         'favicon': setting.favicon,
         'title': setting.title + ' | ' + 'تکمیل خرید',
+        'categories': categories
     }
     
     return render(request, 'cart/checkout.html', context)

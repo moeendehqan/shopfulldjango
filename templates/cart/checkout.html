@@ -23,20 +23,20 @@
                         <textarea name="address" 
                                   class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition" 
                                   rows="3" 
-                                  required>{{ request.user.profile.address }}</textarea>
+                                  required>{{ request.user.address }}</textarea>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-medium mb-2">کد پستی</label>
                         <input type="text" name="postal_code" 
                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
-                               value="{{ request.user.profile.postal_code }}" 
+                               value="{{ request.user.postal_code }}" 
                                required>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-medium mb-2">شماره تماس</label>
                         <input type="tel" name="phone" 
                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
-                               value="{{ request.user.profile.phone }}" 
+                               value="{{ request.user.phone_number }}" 
                                required>
                     </div>
                 </div>

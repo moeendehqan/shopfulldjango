@@ -20,12 +20,14 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import ProfileUpdateForm
+from category.models import Category
 
 class LoginView(View):
     template_name = 'accounts/login.html'
     
     def get_context_data(self):
         setting = Setting.objects.first()
+        categories = Category.objects.filter(parent__isnull=True, status=True)
         return {
             'description': setting.description,
             'keywords': setting.keywords,
@@ -33,7 +35,8 @@ class LoginView(View):
             'robots': 'index, follow',
             'title': setting.title,
             'logo': setting.logo,
-            'favicon': setting.favicon
+            'favicon': setting.favicon,
+            'categories': categories
         }
     
     def get(self, request):
@@ -60,6 +63,7 @@ class RegisterView(View):
     
     def get_context_data(self):
         setting = Setting.objects.first()
+        categories = Category.objects.filter(parent__isnull=True, status=True)
         return {
             'description': setting.description,
             'keywords': setting.keywords,
@@ -67,7 +71,8 @@ class RegisterView(View):
             'robots': 'index, follow',
             'title': setting.title,
             'logo': setting.logo,
-            'favicon': setting.favicon
+            'favicon': setting.favicon,
+            'categories': categories
         }
 
     def get(self, request):
@@ -217,6 +222,7 @@ class CustomPasswordResetView(PasswordResetView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         setting = Setting.objects.first()
+        categories = Category.objects.filter(parent__isnull=True, status=True)
         context.update({
             'description': setting.description,
             'keywords': setting.keywords,
@@ -224,7 +230,8 @@ class CustomPasswordResetView(PasswordResetView):
             'robots': 'index, follow',
             'title': setting.title,
             'logo': setting.logo,
-            'favicon': setting.favicon
+            'favicon': setting.favicon,
+            'categories': categories
         })
         return context
 
@@ -240,6 +247,7 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         setting = Setting.objects.first()
+        categories = Category.objects.filter(parent__isnull=True, status=True)
         context.update({
             'description': setting.description,
             'keywords': setting.keywords,
@@ -247,7 +255,8 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
             'robots': 'index, follow',
             'title': setting.title,
             'logo': setting.logo,
-            'favicon': setting.favicon
+            'favicon': setting.favicon,
+            'categories': categories
         })
         return context
 
@@ -260,6 +269,7 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
         
         # افزودن تنظیمات سایت
         setting = Setting.objects.first()
+        categories = Category.objects.filter(parent__isnull=True, status=True)
         context.update({
             'description': setting.description,
             'keywords': setting.keywords,
@@ -267,7 +277,8 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
             'robots': 'index, follow',
             'title': f'{setting.title} - بازنشانی رمز عبور',
             'logo': setting.logo,
-            'favicon': setting.favicon
+            'favicon': setting.favicon,
+            'categories': categories
         })
         
         return context
@@ -280,6 +291,7 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
         
         # افزودن تنظیمات سایت
         setting = Setting.objects.first()
+        categories = Category.objects.filter(parent__isnull=True, status=True)
         context.update({
             'description': setting.description,
             'keywords': setting.keywords,
@@ -287,7 +299,8 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
             'robots': 'index, follow',
             'title': f'{setting.title} - بازنشانی رمز عبور تکمیل شد',
             'logo': setting.logo,
-            'favicon': setting.favicon
+            'favicon': setting.favicon,
+            'categories': categories
         })
         
         return context
@@ -309,6 +322,7 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         setting = Setting.objects.first()
+        categories = Category.objects.filter(parent__isnull=True, status=True)
         context.update({
             'description': setting.description,
             'keywords': setting.keywords,
@@ -316,7 +330,8 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
             'robots': 'index, follow',
             'title': f'{setting.title} - پروفایل کاربری',
             'logo': setting.logo,
-            'favicon': setting.favicon
+            'favicon': setting.favicon,
+            'categories': categories
         })
         return context
 

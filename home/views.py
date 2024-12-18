@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
 from .models import Setting, Slider
+from category.models import Category
 import random
 from product.models import Product, Variation
 from django.db.models import Avg, Count, F, ExpressionWrapper, DecimalField, Subquery, OuterRef
@@ -127,6 +128,10 @@ class HomeView(TemplateView):
                 for item in context[key]:
                     item.jalali_created_at = convert_to_jalali(item.created_at)
         
+        # اضافه کردن دسته‌بندی‌ها به کانتکست
+        categories = Category.objects.filter(parent__isnull=True, status=True)
+        context['categories'] = categories
+        
         return context
 
 class AboutUsView(TemplateView):
@@ -144,7 +149,8 @@ class AboutUsView(TemplateView):
         context['logo'] = setting.logo
         context['favicon'] = setting.favicon
         context['setting'] = setting
-        
+        categories = Category.objects.filter(parent__isnull=True, status=True)
+        context['categories'] = categories
         return context
 
 def convert_to_jalali(date):

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">نتایج جستجو برای: "{{ query }}"</h1>
+
+    {% if products %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for product in products %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                {% if product.image %}
+                <div class="relative h-48 overflow-hidden">
+                    <img src="{{ product.image.url }}" 
+                         class="object-cover w-full h-full transform hover:scale-105 transition-transform duration-300" 
+                         alt="{{ product.name }}">
+                </div>
+                {% endif %}
+                
+                <div class="p-4">
+                    <h5 class="text-xl font-semibold text-gray-800 mb-2">{{ product.name }}</h5>
+                    
+                    {% if product.variation_set.exists %}
+                        {% with first_variation=product.variation_set.first %}
+                            {% if first_variation.price_after_discount %}
+                            <div class="mb-3">
+                                <del class="text-gray-500 text-sm">{{ first_variation.price }} تومان</del>
+                                <p class="text-red-600 font-bold">{{ first_variation.price_after_discount }} تومان</p>
+                            </div>
+                            {% else %}
+                            <p class="text-gray-700 font-bold mb-3">{{ first_variation.price }} تومان</p>
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                    
+                    {% if product.summary %}
+                    <p class="text-gray-600 text-sm mb-4">{{ product.summary|truncatewords:20 }}</p>
+                    {% endif %}
+                    
+                    <a href="{% url 'product:product_detail' product.slug %}" 
+                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                       مشاهده محصول
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-600 text-center">محصولی با این جستجو یافت نشد.</p>
+    {% endif %}
+</div>
+{% endblock %} 
