@@ -90,7 +90,16 @@ class HomeView(TemplateView):
                 first_variation = product.variation_set.first()
                 if first_variation:
                     first_variation.product = product
-                    first_variation.max_discount_percentage = product.max_discount_percentage
+                    first_variation.max_discount_percentage = product.max_discount_percentage or 0
+                    
+                    # محاسبه درصد تخفیف برای تنوع
+                    if first_variation.price_after_discount and first_variation.price_after_discount < first_variation.price:
+                        first_variation.discount_percentage = (
+                            (first_variation.price - first_variation.price_after_discount) * 100.0 / first_variation.price
+                        )
+                    else:
+                        first_variation.discount_percentage = 0
+                    
                     if hasattr(product, 'avg_rating'):
                         first_variation.avg_rating = product.avg_rating
                     products_with_variations.append(first_variation)
@@ -111,17 +120,6 @@ class HomeView(TemplateView):
         context['top_rated_products'] = add_first_variation(top_rated_products_with_variations)
         context['best_selling_products'] = add_first_variation(best_selling_products_with_variations)
         context['newest_products'] = add_first_variation(newest_products_with_variations)
-        
-        # چاپ اطلاعات محصولات
-        for category, products in [
-            ('محصولات با بیشترین تخفیف', context['discounted_products']),
-            ('محصولات با بیشترین امتیاز', context['top_rated_products']),
-            ('محصولات پرفروش', context['best_selling_products']),
-            ('محصولات جدید', context['newest_products'])
-        ]:
-            print(f"\n{category}:")
-            for product in products:
-                print(f"ID: {product.product.id}, Name: {product.product.name}, Slug: {product.product.slug}")
         
         # تبدیل تاریخ در context
         for key in ['newest_products', 'top_rated_products', 'best_selling_products']:

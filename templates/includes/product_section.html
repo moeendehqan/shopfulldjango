@@ -24,9 +24,9 @@
                         </div>
                     {% endif %}
                     
-                    {% if item.max_discount_percentage %}
+                    {% if item.discount_percentage and item.discount_percentage > 0 %}
                         <span class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs">
-                            {{ item.max_discount_percentage|floatformat:0 }}% تخفیف
+                            {{ item.discount_percentage|floatformat:0 }}% تخفیف
                         </span>
                     {% endif %}
                 </div>
