@@ -32,9 +32,22 @@ PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d postgres -c "SELECT 
 echo "تولید میگریشن‌های جدید..."
 python manage.py makemigrations
 
-# اجرای میگریشن‌ها با ترتیب صحیح
-echo "اجرای میگریشن‌ها..."
+# اجرای میگریشن‌های اصلی Django
+echo "اجرای میگریشن‌های اصلی Django..."
 python manage.py migrate --run-syncdb
+
+# اجرای میگریشن‌های باقی مانده
+echo "اجرای میگریشن‌های باقی مانده..."
+python manage.py migrate
+
+# ایجاد کاربر ادمین
+echo "ایجاد کاربر ادمین..."
+python manage.py shell -c "
+from django.contrib.auth import get_user_model
+User = get_user_model()
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser('admin', 'admin@example.com', '$ADMIN_PASSWORD')
+"
 
 # Start the Django application
 echo "راه‌اندازی سرور Django..."
