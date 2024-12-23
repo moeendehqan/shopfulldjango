@@ -1,0 +1,5 @@
+Django==4.1
+psycopg2-binary==2.9.5
+django-jalali==6.0.0
+Pillow==9.4.0
+python-dotenv==0.21.1 
