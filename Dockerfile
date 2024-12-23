@@ -21,6 +21,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
+# Create static files directory
+RUN mkdir -p staticfiles
+
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
