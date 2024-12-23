@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.text import slugify
-from unidecode import unidecode
 
 # Create your models here.
 class Category(models.Model):
