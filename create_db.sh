@@ -32,9 +32,9 @@ PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USER" -d postgres -c "SELECT 
 echo "تولید میگریشن‌های جدید..."
 python manage.py makemigrations
 
-# Run Django migrations with verbose output
+# اجرای میگریشن‌ها با ترتیب صحیح
 echo "اجرای میگریشن‌ها..."
-python manage.py migrate --verbosity 2
+python manage.py migrate --run-syncdb
 
 # Start the Django application
 echo "راه‌اندازی سرور Django..."
