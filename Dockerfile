@@ -14,12 +14,19 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy project files
+COPY . .
+
+# Add database creation script
+COPY create_db.sh /create_db.sh
+RUN chmod +x /create_db.sh
+
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
-COPY . .
+# Entrypoint script to create database if not exists
+ENTRYPOINT ["/create_db.sh"]
 
 # Create static files directory
 RUN mkdir -p staticfiles
