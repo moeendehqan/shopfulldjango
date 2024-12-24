@@ -39,6 +39,3 @@ if not User.objects.filter(username='admin').exists():
     User.objects.create_superuser('admin', 'admin@example.com', 'RoundShop2024!')
 "
 
-# Start the Django application
-echo "راه‌اندازی سرور Django..."
-exec python manage.py runserver 0.0.0.0:8000

@@ -37,5 +37,3 @@ RUN python manage.py collectstatic --noinput
 # Expose port 7700
 EXPOSE 7700
 
-# Run the application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:7700"] 
