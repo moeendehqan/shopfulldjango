@@ -34,8 +34,8 @@ RUN mkdir -p staticfiles
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Expose port 8000
-EXPOSE 8000
+# Expose port 7700
+EXPOSE 7700
 
 # Run the application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"] 
+CMD ["python", "manage.py", "runserver", "0.0.0.0:7700"] 
